@@ -1,112 +1,149 @@
 # GENIE Task - GSoC Submission
 
 ## Overview
-This repository contains my submission for the GENIE task as part of Google Summer of Code (GSoC). The project involved three tasks:
-1. **Image Reconstruction using Autoencoders** (Common Task 1)
-2. **Graph Construction and Processing** (Common Task 2)
+
+This repository contains my submission for the **GENIE task** as part of **Google Summer of Code (GSoC)**. The project involved three tasks:
+
+1. **Image Reconstruction using Autoencoders** (Common Task 1)  
+2. **Graph Construction and Processing** (Common Task 2)  
 3. **Quark/Gluon Classification** (Specific Task)
 
 The dataset consists of high-dimensional images representing quark/gluon explosions, with three distinct channels:
+
 - **ECAL (Electromagnetic Calorimeter)**
 - **HCAL (Hadronic Calorimeter)**
 - **Tracks**
 
-Due to the large size of the dataset, I divided it into 14 chunks, each containing approximately 140,000 images.
+Due to the **large size** of the dataset, loading everything at once caused **Kaggle to go out of memory**. Therefore, I **divided the dataset into 14 chunks**, each containing approximately 140,000 images, and processed them **chunk by chunk** to avoid OOM issues.
 
 ---
 
 ## Task 1: Image Reconstruction using Autoencoders
-The goal of this task was to reconstruct images using autoencoder models.
 
-### Methodology:
-- Trained **three separate autoencoders**, one for each channel (ECAL, HCAL, Tracks).
-- Implemented a **self-attention block** to learn interdependencies between channels.
-- Developed **three pairwise attention mechanisms** (ECAL-HCAL, ECAL-Tracks, HCAL-Tracks) and a **global attention** mechanism to focus on all three channels simultaneously.
-- Reconstructed images using these attention-based autoencoders.
+The goal of this task was to **reconstruct images** using autoencoder models.
+
+### Methodology
+
+- Trained **three separate autoencoders**, one for each channel (**ECAL, HCAL, Tracks**).  
+- Implemented a **self-attention block** to learn interdependencies between channels.  
+- Developed **three pairwise attention mechanisms** (ECAL-HCAL, ECAL-Tracks, HCAL-Tracks) and a **global attention** mechanism to focus on all three channels simultaneously.  
+- Reconstructed images using these **attention-based autoencoders**.  
+- Processed the data **chunk by chunk** to manage memory usage on Kaggle.
+
+### Sample Reconstruction Statistics (Single Chunk)
+
+Below are **reconstruction metrics** computed on a **single chunk** of ~10,000 images:
+
+```
+Average MSE:                6.57834425510373e-06
+Average MAE:                7.680848648305982e-05
+Average PSNR:               43.1297056164595
+Average SSIM:               0.987662136554718
+Average Energy Difference:  1.3378345966339111
+Average Correlation Coefficient: -0.0007801791299508257
+
+Per-channel MSE:            [1.5025887e-05 4.4442954e-06 2.6482948e-07]
+Per-channel MAE:            [9.8354700e-05 7.4819196e-05 5.7251895e-05]
+Per-channel PSNR:           [39.14618492 38.30827117 24.96852008]
+Per-channel SSIM:           [0.97488469 0.97431507 0.63355858]
+```
 
 ---
 
 ## Task 2: Graph Construction and Processing
-This task involved converting jet images into graphs and extracting meaningful physics-informed features.
 
-### Key Components:
-#### 1. **Dynamic kNN Class**
+This task involved **converting jet images into graphs** and extracting meaningful physics-informed features.
+
+### Key Components
+
+1. **Dynamic kNN Class**  
    - Recomputes adjacency based on a weighted sum of geometric distance (η, φ) and feature distance in the node embedding space.
 
-#### 2. **Multi-Scale kNN**
+2. **Multi-Scale kNN**  
    - Constructs multi-scale graphs for hierarchical feature learning.
 
-#### 3. **Jet Graph Processor**
+3. **Jet Graph Processor**  
    - Converts a jet image into a graph while incorporating important node features such as:
      - Total energy
      - ECAL, HCAL, Tracks
      - **pT fraction, charged fraction**
-     - Local energy density (3x3 sum)
+     - Local energy density (3×3 sum)
      - Coordinates (η, φ)
-     - **Log(E+1), sqrt(E), angle, and normalized distance**
+     - **Log(E+1), sqrt(E), angle, normalized distance**, etc.
 
-#### 4. **Coordinate Embedding Class**
+4. **Coordinate Embedding Class**  
    - Implements learnable embeddings for (η, φ) coordinates to enhance spatial feature learning.
 
-#### 5. **Graph Neural Network (GNN)**
-   - **Coordinate embedding for (η, φ)** at specific indices.
+5. **Graph Neural Network (GNN)**  
+   - **Coordinate embedding** for (η, φ) at specific indices.
    - **Dynamic adjacency module** for continuous graph refinement.
    - **GNN layers** alternating between **GAT (Graph Attention Network)** and **EdgeConv**.
    - **Optional SAGPooling** for hierarchical pooling.
    - Final **multi-scale pooling classifier** (mean, max, sum) combined with global features.
 
+### Graph Evolution
+
+Below are **visualizations** of how the graph evolves through different processing stages (example images shown):
+
+#### **Graph 0 and Graph 1 Visualization**
+![Graph 0 and Graph 1](path/to/your/image2.png)
+
+#### **Processed Chunk (Graph Index 0)**
+![Processed Chunk 0_10000](path/to/your/image3.png)
+
+#### **Jet 1 Visualization**
+![Jet 1, Class 0.0](path/to/your/image1.png)
+
 ---
 
 ## Task 3: Quark/Gluon Classification
+
 The final task was to classify images as **quarks** or **gluons**.
 
-### Methodology:
-#### **1. First Approach: CNN-Based Models**
-- Trained multiple **convolutional neural networks (CNNs)**, including:
-  - **ResNet, DenseNet, EfficientNet, ViT, Swin Transformer**
-- Incorporated **channel-wise convolutions** and **feature pyramids** for hierarchical feature extraction.
-- Used a **soft ensemble** of all CNN models for better generalization.
+### Methodology
 
-#### **2. Tabular Data Augmentation**
-- Created a new feature column in tabular data using the **CNN predictions**.
-- Computed additional **quark/gluon properties** from the provided dataset.
+1. **CNN-Based Models**  
+   - Trained multiple **convolutional neural networks (CNNs)**, including **ResNet, DenseNet, EfficientNet, ViT, Swin Transformer**.  
+   - Incorporated **channel-wise convolutions** and **feature pyramids** for hierarchical feature extraction.  
+   - Used a **soft ensemble** of all CNN models for better generalization.
 
-#### **3. Gradient Boosted Trees (GBTs)**
-- Trained multiple **GBTs** on the tabular dataset, including:
-  - **LightGBM (LGBM)**
-  - **XGBoost (XGB)**
-  - **CatBoost**
-- Took an ensemble of all GBT models to obtain the final classification predictions.
+2. **Tabular Data Augmentation**  
+   - Created a new feature column in tabular data using the **CNN predictions**.  
+   - Computed additional **quark/gluon properties** from the provided dataset.
 
-#### **4. Second Approach: Reconstructed Image Differences and Graph-Based Classification**
-- Instead of directly classifying the images, another approach involved **subtracting the reconstructed images from the original images** to analyze the difference in distributions between quarks and gluons. The resulting distance differences were used as features for classification.
-- Additionally, the **original images along with the difference images and the graph representations** created in Task 2 were used as inputs for classification.
-- Both approaches incorporated **channel-wise convolutions** and **feature pyramids** to enhance feature extraction.
-- However, due to **resource constraints**, I was unable to train the model for many epochs and could only implement the code without fully executing it.
+3. **Gradient Boosted Trees (GBTs)**  
+   - Trained multiple **GBTs** on the tabular dataset: **LightGBM (LGBM), XGBoost (XGB), CatBoost**.  
+   - Took an **ensemble** of all GBT models to obtain the final classification predictions.
+
+4. **Alternative Approach: Reconstructed Image Differences + Graph-Based Classification**  
+   - Analyzed **difference images** (original – reconstructed) to highlight distribution differences for quarks vs. gluons.  
+   - Combined **difference images** and **graph representations** from Task 2.  
+   - Incorporated **channel-wise convolutions** and **feature pyramids**.  
+   - Due to **resource constraints**, was unable to fully train this model for many epochs.
 
 ---
 
 ## Results & Conclusion
-- Implemented and optimized **multi-channel autoencoders** with attention mechanisms for better image reconstruction.
+
+- Implemented and optimized **multi-channel autoencoders** with attention mechanisms for **better image reconstruction**.
 - Developed a **robust graph-based representation** of jet images using dynamic kNN and physics-informed features.
 - Achieved **high classification accuracy** by combining CNN-based feature extraction with gradient-boosted tree models.
-- Successfully handled **large-scale datasets** by chunking and parallelizing computations.
-- Proposed **two classification approaches**: 
-  1. **CNN-based models with tabular feature augmentation and ensemble learning.**
-  2. **Reconstructed image differences and graph-based classification using physics-informed graphs.**
-- Full execution of the second approach was limited by computational constraints.
-
-This submission demonstrates a **multi-faceted approach to analyzing high-energy physics data**, leveraging deep learning, graph processing, and ensemble modeling techniques.
+- Successfully handled **large-scale datasets** by splitting into **14 chunks** and **processing chunk by chunk** to avoid memory issues on Kaggle.
+- Proposed **two classification approaches**:
+  1. **CNN-based models** with tabular feature augmentation and ensemble learning.
+  2. **Reconstructed image differences** and **graph-based classification** using physics-informed graphs.
+- **Full execution** of the second approach was limited by computational constraints but the **code is implemented**.
 
 ---
 
 ## Contact
+
 For any questions or clarifications, feel free to reach out:
+
 - **GitHub:** [Aielite29](https://github.com/Aielite29)
 - **LinkedIn:** [Abhinav Jha](https://www.linkedin.com/in/abhinav-jha-81ab8530b/)
 
 ---
-
 
 
 
