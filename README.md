@@ -61,7 +61,7 @@ This task involved converting jet images into graphs and extracting meaningful p
 The final task was to classify images as **quarks** or **gluons**.
 
 ### Methodology:
-#### **1. CNN-Based Models**
+#### **1. First Approach: CNN-Based Models**
 - Trained multiple **convolutional neural networks (CNNs)**, including:
   - **ResNet, DenseNet, EfficientNet, ViT, Swin Transformer**
 - Incorporated **channel-wise convolutions** and **feature pyramids** for hierarchical feature extraction.
@@ -78,9 +78,10 @@ The final task was to classify images as **quarks** or **gluons**.
   - **CatBoost**
 - Took an ensemble of all GBT models to obtain the final classification predictions.
 
-#### **4. Alternative Classification Approach**
-- Another approach for classification could involve **subtracting the reconstructed images from the original images** to analyze the difference in distributions between quarks and gluons. The resulting distance differences could be used as features for classification.
-- Additionally, the **graph representations** created in Task 2 could also be utilized for classification.
+#### **4. Second Approach: Reconstructed Image Differences and Graph-Based Classification**
+- Instead of directly classifying the images, another approach involved **subtracting the reconstructed images from the original images** to analyze the difference in distributions between quarks and gluons. The resulting distance differences were used as features for classification.
+- Additionally, the **original images along with the difference images and the graph representations** created in Task 2 were used as inputs for classification.
+- Both approaches incorporated **channel-wise convolutions** and **feature pyramids** to enhance feature extraction.
 - However, due to **resource constraints**, I was unable to train the model for many epochs and could only implement the code without fully executing it.
 
 ---
@@ -90,9 +91,14 @@ The final task was to classify images as **quarks** or **gluons**.
 - Developed a **robust graph-based representation** of jet images using dynamic kNN and physics-informed features.
 - Achieved **high classification accuracy** by combining CNN-based feature extraction with gradient-boosted tree models.
 - Successfully handled **large-scale datasets** by chunking and parallelizing computations.
-- Proposed **alternative classification methods** involving **image reconstruction differences** and **graph-based classification**, though full experiments were limited by computational constraints.
+- Proposed **two classification approaches**: 
+  1. **CNN-based models with tabular feature augmentation and ensemble learning.**
+  2. **Reconstructed image differences and graph-based classification using physics-informed graphs.**
+- Full execution of the second approach was limited by computational constraints.
 
 This submission demonstrates a **multi-faceted approach to analyzing high-energy physics data**, leveraging deep learning, graph processing, and ensemble modeling techniques.
+
+---
 
 ## Contact
 For any questions or clarifications, feel free to reach out:
@@ -101,8 +107,6 @@ For any questions or clarifications, feel free to reach out:
 
 ---
 
-## Acknowledgments
-Special thanks to the mentors and the GENIE team for their support and guidance throughout this project.
 
 
 
