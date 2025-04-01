@@ -85,14 +85,17 @@ This task involved **converting jet images into graphs** and extracting meaningf
 
 Below are **visualizations** of how the graph evolves through different processing stages (example images shown):
 
-#### **Graph 0 and Graph 1 Visualization**
-![Graph 0 and Graph 1](path/to/your/image2.png)
+#### **Normal Knn approach**
+![Screenshot 2025-04-01 170559](https://github.com/user-attachments/assets/04170f35-de57-48ca-b242-1e032019a32d)
 
-#### **Processed Chunk (Graph Index 0)**
-![Processed Chunk 0_10000](path/to/your/image3.png)
 
-#### **Jet 1 Visualization**
-![Jet 1, Class 0.0](path/to/your/image1.png)
+#### **Dynamic Knn + GNN**
+![Screenshot 2025-04-01 170651](https://github.com/user-attachments/assets/443f21bf-1d0b-48a3-8edf-8b98ba6397f3)
+
+
+#### **Dynamic KNN + MultiScale KNN +GNN with GAT**
+![Screenshot 2025-04-01 170707](https://github.com/user-attachments/assets/7992e586-a5d9-4ae3-8831-4bc341a8605f)
+
 
 ---
 
