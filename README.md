@@ -84,6 +84,12 @@ In this task, jet images are transformed into graph representations using a mult
 
 - **Visualization:**  
   Sample graphs are visualized to illustrate the evolution from the normal kNN approach to dynamic and multi-scale kNN-based graphs processed by the GNN.
+
+![Screenshot 2025-04-01 170707](https://github.com/user-attachments/assets/221ddc24-7f10-4e56-8bb7-f12139751d78)
+
+
+
+
 ![Editor _ Mermaid Chart-2025-04-01-181843](https://github.com/user-attachments/assets/3e02a425-d2be-4380-9769-72964384869f)
 ---
 
