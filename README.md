@@ -2,13 +2,13 @@
 
 ## Overview
 
-This repository contains my submission for the **GENIE task** as part of **Google Summer of Code (GSoC)**. The project involved three tasks:
+This repository contains my submission for the **GENIE task** as part of **Google Summer of Code (GSoC)**. The project involves three major tasks:
 
 1. **Image Reconstruction using Autoencoders** (Common Task 1)  
 2. **Graph Construction and Processing** (Common Task 2)  
 3. **Quark/Gluon Classification** (Specific Task)
 
-The dataset consists of high-dimensional images representing quark/gluon explosions, with three distinct channels:
+The dataset consists of high-dimensional images representing quark/gluon explosions with three distinct channels:
 
 - **ECAL (Electromagnetic Calorimeter)**
 - **HCAL (Hadronic Calorimeter)**
@@ -30,72 +30,50 @@ The goal of this task was to **reconstruct images** using autoencoder models.
 - Reconstructed images using these **attention-based autoencoders**.  
 - Processed the data **chunk by chunk** to manage memory usage on Kaggle.
 
-### Sample Reconstruction Statistics (Single Chunk)
+### Reconstruction Metrics (Single Chunk)
 
-Below are **reconstruction metrics** computed on a **single chunk** of ~10,000 images:
+The following metrics were computed on a single chunk of ~10,000 images:
 
-```
-Average MSE:                6.57834425510373e-06
-Average MAE:                7.680848648305982e-05
-Average PSNR:               43.1297056164595
-Average SSIM:               0.987662136554718
-Average Energy Difference:  1.3378345966339111
-Average Correlation Coefficient: -0.0007801791299508257
+#### Overall Metrics
 
-Per-channel MSE:            [1.5025887e-05 4.4442954e-06 2.6482948e-07]
-Per-channel MAE:            [9.8354700e-05 7.4819196e-05 5.7251895e-05]
-Per-channel PSNR:           [39.14618492 38.30827117 24.96852008]
-Per-channel SSIM:           [0.97488469 0.97431507 0.63355858]
-```
+| Metric                          | Value                    |
+|---------------------------------|--------------------------|
+| Average MSE                     | 6.57834425510373e-06      |
+| Average MAE                     | 7.680848648305982e-05     |
+| Average PSNR                    | 43.1297056164595         |
+| Average SSIM                    | 0.987662136554718        |
+| Average Energy Difference       | 1.3378345966339111       |
+
+#### Per-Channel Metrics
+
+| Channel | MSE           | MAE           | PSNR         | SSIM       |
+|---------|---------------|---------------|--------------|------------|
+| 1       | 1.5025887e-05 | 9.8354700e-05 | 39.14618492  | 0.97488469 |
+| 2       | 4.4442954e-06 | 7.4819196e-05 | 38.30827117  | 0.97431507 |
+| 3       | 2.6482948e-07 | 5.7251895e-05 | 24.96852008  | 0.63355858 |
 
 ---
 
 ## Task 2: Graph Construction and Processing
 
-This task involved **converting jet images into graphs** and extracting meaningful physics-informed features.
+In this task, jet images are transformed into graph representations using a multi-step pipeline:
 
-### Key Components
+- **Graph Conversion:**  
+  Each jet image (from key **"X_jets"**) is converted into a graph where nodes represent active pixels (above a specified energy threshold). For each node, features such as total energy, individual channel energies (ECAL, HCAL, Tracks), pT fraction, charged fraction, local energy sum, and positional information (converted to (η, φ)) are computed.
 
-1. **Dynamic kNN Class**  
-   - Recomputes adjacency based on a weighted sum of geometric distance (η, φ) and feature distance in the node embedding space.
+- **Edge Formation:**  
+  Two approaches are used to form edges between nodes:
+  1. **Dynamic kNN:** A dynamic adjacency is computed using a weighted combination of geometric (η, φ) and feature-based distances, enabling adaptive connectivity.
+  2. **Multi-Scale kNN:** Two neighborhood graphs are built at different scales (small and large k values) to capture both local and global relationships.
 
-2. **Multi-Scale kNN**  
-   - Constructs multi-scale graphs for hierarchical feature learning.
+- **Coordinate Embedding:**  
+  Learnable coordinate embeddings are applied to the (η, φ) values to enhance spatial feature learning.
 
-3. **Jet Graph Processor**  
-   - Converts a jet image into a graph while incorporating important node features such as:
-     - Total energy
-     - ECAL, HCAL, Tracks
-     - **pT fraction, charged fraction**
-     - Local energy density (3×3 sum)
-     - Coordinates (η, φ)
-     - **Log(E+1), sqrt(E), angle, normalized distance**, etc.
+- **Graph Neural Network (GNN):**  
+  The processed graphs are then fed into a GNN that alternates between GAT and EdgeConv layers, optionally using SAGPooling for hierarchical feature extraction. The final model performs multi-scale pooling (mean, max, sum) and incorporates global features for robust downstream tasks.
 
-4. **Coordinate Embedding Class**  
-   - Implements learnable embeddings for (η, φ) coordinates to enhance spatial feature learning.
-
-5. **Graph Neural Network (GNN)**  
-   - **Coordinate embedding** for (η, φ) at specific indices.
-   - **Dynamic adjacency module** for continuous graph refinement.
-   - **GNN layers** alternating between **GAT (Graph Attention Network)** and **EdgeConv**.
-   - **Optional SAGPooling** for hierarchical pooling.
-   - Final **multi-scale pooling classifier** (mean, max, sum) combined with global features.
-
-### Graph Evolution
-
-Below are **visualizations** of how the graph evolves through different processing stages (example images shown):
-
-#### **Normal Knn approach**
-![Screenshot 2025-04-01 170559](https://github.com/user-attachments/assets/04170f35-de57-48ca-b242-1e032019a32d)
-
-
-#### **Dynamic Knn + GNN**
-![Screenshot 2025-04-01 170651](https://github.com/user-attachments/assets/443f21bf-1d0b-48a3-8edf-8b98ba6397f3)
-
-
-#### **Dynamic KNN + MultiScale KNN +GNN with GAT**
-![Screenshot 2025-04-01 170707](https://github.com/user-attachments/assets/7992e586-a5d9-4ae3-8831-4bc341a8605f)
-
+- **Visualization:**  
+  Sample graphs are visualized to illustrate the evolution from the normal kNN approach to dynamic and multi-scale kNN-based graphs processed by the GNN.
 
 ---
 
@@ -105,37 +83,32 @@ The final task was to classify images as **quarks** or **gluons**.
 
 ### Methodology
 
-1. **CNN-Based Models**  
-   - Trained multiple **convolutional neural networks (CNNs)**, including **ResNet, DenseNet, EfficientNet, ViT, Swin Transformer**.  
-   - Incorporated **channel-wise convolutions** and **feature pyramids** for hierarchical feature extraction.  
-   - Used a **soft ensemble** of all CNN models for better generalization.
+1. **Baseline Approach: CNN-Based Models**  
+   - **Training multiple convolutional neural networks (CNNs)** including architectures such as **ResNet, DenseNet, EfficientNet, ViT, and Swin Transformer**.  
+   - Leveraged **channel-wise convolutions** and **feature pyramids** for hierarchical feature extraction.  
+   - Incorporated both **ECAL** and **HCAL** channels from the images to create new columns in the dataset that capture properties differing between quarks and gluons.  
+   - Employed a **soft ensemble** of all CNN models for better generalization.
 
-2. **Tabular Data Augmentation**  
-   - Created a new feature column in tabular data using the **CNN predictions**.  
-   - Computed additional **quark/gluon properties** from the provided dataset.
+2. **Enhanced Approach:**  
+   - To improve upon the baseline, the difference between the **original** and **reconstructed** images was computed.  
+   - Additionally, graph representations of the images (generated in Task 2) were also utilized.  
+   - These difference images and graph features were **concatenated** and used as a whole input to convolutional neural networks, allowing the model to learn complementary features for classification.
 
-3. **Gradient Boosted Trees (GBTs)**  
-   - Trained multiple **GBTs** on the tabular dataset: **LightGBM (LGBM), XGBoost (XGB), CatBoost**.  
-   - Took an **ensemble** of all GBT models to obtain the final classification predictions.
-
-4. **Alternative Approach: Reconstructed Image Differences + Graph-Based Classification**  
-   - Analyzed **difference images** (original – reconstructed) to highlight distribution differences for quarks vs. gluons.  
-   - Combined **difference images** and **graph representations** from Task 2.  
-   - Incorporated **channel-wise convolutions** and **feature pyramids**.  
-   - Due to **resource constraints**, was unable to fully train this model for many epochs.
+3. **Ensemble with Gradient Boosted Trees (GBTs):**  
+   - Finally, multiple GBT models (including **LightGBM (LGBM), XGBoost (XGB), and CatBoost**) were trained on the extracted features.  
+   - An **ensemble** of these GBT models was used to obtain the final classification predictions.
 
 ---
 
 ## Results & Conclusion
 
-- Implemented and optimized **multi-channel autoencoders** with attention mechanisms for **better image reconstruction**.
+- Implemented and optimized **multi-channel autoencoders** with attention mechanisms for enhanced image reconstruction.
 - Developed a **robust graph-based representation** of jet images using dynamic kNN and physics-informed features.
 - Achieved **high classification accuracy** by combining CNN-based feature extraction with gradient-boosted tree models.
-- Successfully handled **large-scale datasets** by splitting into **14 chunks** and **processing chunk by chunk** to avoid memory issues on Kaggle.
-- Proposed **two classification approaches**:
-  1. **CNN-based models** with tabular feature augmentation and ensemble learning.
-  2. **Reconstructed image differences** and **graph-based classification** using physics-informed graphs.
-- **Full execution** of the second approach was limited by computational constraints but the **code is implemented**.
+- Successfully handled **large-scale datasets** by splitting them into **14 chunks** and processing them **chunk by chunk** to avoid memory issues on Kaggle.
+- Two classification approaches were implemented:
+  1. **Baseline:** CNN-based models using channel-wise convolutions, feature pyramids, and new tabular features derived from ECAL and HCAL channels, followed by an ensemble of GBTs.
+  2. **Enhanced:** Combining the difference images (original – reconstructed) and graph representations from Task 2 as input to CNNs for improved feature extraction.
 
 ---
 
@@ -147,7 +120,6 @@ For any questions or clarifications, feel free to reach out:
 - **LinkedIn:** [Abhinav Jha](https://www.linkedin.com/in/abhinav-jha-81ab8530b/)
 
 ---
-
 
 
 
