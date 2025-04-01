@@ -52,6 +52,16 @@ The following metrics were computed on a single chunk of ~10,000 images:
 | 2       | 4.4442954e-06 | 7.4819196e-05 | 38.30827117  | 0.97431507 |
 | 3       | 2.6482948e-07 | 5.7251895e-05 | 24.96852008  | 0.63355858 |
 
+
+
+
+
+![Editor _ Mermaid Chart-2025-04-01-180513](https://github.com/user-attachments/assets/154652ca-2dff-4b26-aa45-d48ced34f51b)
+
+
+
+
+
 ---
 
 ## Task 2: Graph Construction and Processing
@@ -74,7 +84,7 @@ In this task, jet images are transformed into graph representations using a mult
 
 - **Visualization:**  
   Sample graphs are visualized to illustrate the evolution from the normal kNN approach to dynamic and multi-scale kNN-based graphs processed by the GNN.
-
+![Editor _ Mermaid Chart-2025-04-01-181843](https://github.com/user-attachments/assets/3e02a425-d2be-4380-9769-72964384869f)
 ---
 
 ## Task 3: Quark/Gluon Classification
@@ -97,6 +107,7 @@ The final task was to classify images as **quarks** or **gluons**.
 3. **Ensemble with Gradient Boosted Trees (GBTs):**  
    - Finally, multiple GBT models (including **LightGBM (LGBM), XGBoost (XGB), and CatBoost**) were trained on the extracted features.  
    - An **ensemble** of these GBT models was used to obtain the final classification predictions.
+![Editor _ Mermaid Chart-2025-04-01-181147](https://github.com/user-attachments/assets/cc4d7e38-7696-4746-b67f-00fe0a6b2399)
 
 ---
 
