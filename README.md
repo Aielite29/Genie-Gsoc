@@ -117,15 +117,71 @@ The final task was to classify images as **quarks** or **gluons**.
 
 ---
 
+---
+
+### Method 2: Advanced Physics-Informed Graph Contrastive Learning
+
+In this approach, we enhance quark/gluon classification by leveraging graph-based representations enriched with domain-specific physics insights. The key components of this method are:
+
+- **Graph Representations & Physics Features:**  
+  Instead of relying solely on image data, we extract graph representations from jets. Each graph encodes the structure of energy deposits as nodes, with edges representing their physical connectivity. In addition to basic physics features such as transverse momentum (`pt`) and jet mass (`m0`), we introduce an **explosion metric**—computed as the ratio of the number of edges to the number of nodes. This metric captures the “explosiveness” of a jet, with gluon jets typically exhibiting denser connectivity due to their larger color charge.
+
+- **Graph Neural Network Architecture:**  
+  We employ a Graph Attention Network (GAT) based encoder with dense (skip) connections to capture both low-level and high-level features by fusing multi-scale information. This encoder is coupled with:
+  - A **Projection Head** that projects the learned graph embeddings into a latent space suitable for contrastive learning.
+  - A **Classifier Head** that concatenates the graph-level embedding with the global physics features—including `pt`, `m0`, and the explosion metric—to perform the final classification.
+
+- **Contrastive Pre-training & Fine-tuning:**  
+  The model undergoes a two-step training process:
+  1. **Contrastive Pre-training:**  
+     The encoder is pre-trained using an improved NT-Xent loss enhanced with margin-based hard negative regularization. This helps the model learn robust, discriminative representations by contrasting different augmented views of the same graph.
+  2. **Classification Fine-tuning:**  
+     After pre-training, the classifier head is fine-tuned (with an option to freeze the encoder) to optimize the final classification performance.
+
+- **Complementarity with Image-Based Features:**  
+  When used in tandem with traditional image-based approaches—such as those leveraging difference images between original and reconstructed data—the graph-based features provide complementary insights. They capture the connectivity dynamics and substructure of jets, which are critical for differentiating between the more focused quark jets and the denser, more “explosive” gluon jets.
+
+- **Performance Metrics:**  
+  When trained on only 10,000 images, this method achieved an Accuracy of **66.95%**, an F1 Score of **0.6678**, and a ROC-AUC of **0.7149**. These results demonstrate the potential of integrating graph-based, physics-informed features to enhance quark/gluon classification performance even with limited training data.
+
+---
+
+This advanced method leverages the underlying physics of jet formation and explosion dynamics to enhance anomaly detection and improve the robustness of quark/gluon classification.
+![mermaid-diagram-2025-04-07-222319](https://github.com/user-attachments/assets/b7d155f6-c44b-4b57-b65e-8bad6d9c4e33)
+
+--- 
+---
+
 ## Results & Conclusion
 
-- Implemented and optimized **multi-channel autoencoders** with attention mechanisms for enhanced image reconstruction.
-- Developed a **robust graph-based representation** of jet images using dynamic kNN and physics-informed features.
-- Achieved **high classification accuracy** by combining CNN-based feature extraction with gradient-boosted tree models.
-- Successfully handled **large-scale datasets** by splitting them into **14 chunks** and processing them **chunk by chunk** to avoid memory issues on Kaggle.
-- Two classification approaches were implemented:
-  1. **Baseline:** CNN-based models using channel-wise convolutions, feature pyramids, and new tabular features derived from ECAL and HCAL channels, followed by an ensemble of GBTs.
-  2. **Enhanced:** Combining the difference images (original – reconstructed) and graph representations from Task 2 as input to CNNs for improved feature extraction.
+- **Image Reconstruction:**  
+  Implemented and optimized multi-channel autoencoders with attention mechanisms for enhanced image reconstruction.
+
+- **Graph-Based Jet Representation:**  
+  Developed a robust graph-based representation of jet images using dynamic kNN and physics-informed features. This included the novel **explosion metric** (ratio of the number of edges to nodes) which captures the connectivity dynamics of jets, providing deeper insights into quark and gluon substructures.
+
+- **Scalability:**  
+  Successfully handled large-scale datasets by splitting them into 14 chunks and processing them sequentially on Kaggle to avoid memory issues.
+
+- **Three Classification Approaches:**
+
+  1. **Baseline Approach:**  
+     CNN-based models utilizing channel-wise convolutions, feature pyramids, and new tabular features derived from ECAL and HCAL channels. An ensemble of gradient-boosted tree (GBT) models—including LightGBM, XGBoost, and CatBoost—was employed to enhance the final predictions.
+
+  2. **Enhanced Approach:**  
+     Combined the difference images (original – reconstructed) with graph representations from Task 2 as input to convolutional neural networks. This method leverages complementary features from both the image and graph domains for improved feature extraction and classification.
+
+  3. **Third Approach: Advanced Physics-Informed Graph Contrastive Learning:**  
+     This method leverages physics-informed graph representations to enhance quark/gluon classification. Key features include:
+     - **Contrastive Pre-training:** The encoder is pre-trained using an improved NT-Xent loss with margin-based hard negative regularization, which helps learn robust graph embeddings.
+     - **Physics-Informed Features:** Graph representations are enriched with domain-specific features such as transverse momentum (`pt`), jet mass (`m0`), and the explosion metric (capturing the jet's connectivity dynamics).
+     - **Fine-Tuning:** A classifier head is fine-tuned (with an option to freeze the encoder) on these combined features for final classification.
+     
+     When trained on only 10,000 images, this approach achieved an Accuracy of **66.95%**, an F1 Score of **0.6678**, and a ROC-AUC of **0.7149**. These metrics highlight the potential of integrating physics-informed graph features to enhance classification performance even with limited training data.
+
+Overall, the combination of these approaches demonstrates a comprehensive strategy for quark/gluon classification. While the baseline and enhanced methods capitalize on advanced CNN architectures and image-based feature extraction, the third approach introduces a novel graph-based perspective grounded in the underlying physics of jet formation, leading to improved robustness and accuracy in the classification task.
+
+---
 
 ---
 
