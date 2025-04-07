@@ -119,35 +119,80 @@ The final task was to classify images as **quarks** or **gluons**.
 
 ---
 
-### Method 2: Advanced Physics-Informed Graph Contrastive Learning
+Below is an updated GitHub README section for "Method 2: Advanced Physics-Informed Graph Contrastive Learning," now reflecting the enhancements introduced in the model architecture, training procedure, and feature engineering. This section explains the key components and training flow.
 
-In this approach, we enhance quark/gluon classification by leveraging graph-based representations enriched with domain-specific physics insights. The key components of this method are:
+---
 
-- **Graph Representations & Physics Features:**  
-  Instead of relying solely on image data, we extract graph representations from jets. Each graph encodes the structure of energy deposits as nodes, with edges representing their physical connectivity. In addition to basic physics features such as transverse momentum (`pt`) and jet mass (`m0`), we introduce an **explosion metric**—computed as the ratio of the number of edges to the number of nodes. This metric captures the “explosiveness” of a jet, with gluon jets typically exhibiting denser connectivity due to their larger color charge.
+## Method 2: Advanced Physics-Informed Graph Contrastive Learning
 
-- **Graph Neural Network Architecture:**  
-  We employ a Graph Attention Network (GAT) based encoder with dense (skip) connections to capture both low-level and high-level features by fusing multi-scale information. This encoder is coupled with:
-  - A **Projection Head** that projects the learned graph embeddings into a latent space suitable for contrastive learning.
-  - A **Classifier Head** that concatenates the graph-level embedding with the global physics features—including `pt`, `m0`, and the explosion metric—to perform the final classification.
+In this approach, we significantly enhance quark/gluon jet classification by leveraging graph-based representations enriched with domain-specific physics insights. This method is built upon an improved graph neural network architecture and a two-step training procedure (contrastive pre-training followed by classification fine-tuning). The complementary nature of these graph features further provides insights that augment traditional image-based approaches.
 
-- **Contrastive Pre-training & Fine-tuning:**  
-  The model undergoes a two-step training process:
-  1. **Contrastive Pre-training:**  
-     The encoder is pre-trained using an improved NT-Xent loss enhanced with margin-based hard negative regularization. This helps the model learn robust, discriminative representations by contrasting different augmented views of the same graph.
-  2. **Classification Fine-tuning:**  
-     After pre-training, the classifier head is fine-tuned (with an option to freeze the encoder) to optimize the final classification performance.
+### 1. Graph Representations & Physics Features
 
-- **Complementarity with Image-Based Features:**  
-  When used in tandem with traditional image-based approaches—such as those leveraging difference images between original and reconstructed data—the graph-based features provide complementary insights. They capture the connectivity dynamics and substructure of jets, which are critical for differentiating between the more focused quark jets and the denser, more “explosive” gluon jets.
+- **Graph Extraction:**  
+  Rather than relying solely on image data, we extract graph representations from jet event data. In these graphs, nodes encode energy deposits, and edges represent the physical connectivity among them.
+
+- **Enhanced Physics Features:**  
+  In addition to standard features such as transverse momentum (`pt`) and jet mass (`m0`), we introduce an **explosion metric**. This metric is computed as the ratio of the number of edges to the number of nodes and quantifies the “explosiveness” of a jet. Gluon jets, which typically exhibit denser connectivity owing to their larger color charge, tend to have higher explosion metric values.
+
+- **Feature Normalization & Robustness:**  
+  All global physics features are normalized to improve convergence and ensure robust learning. Safeguards are built into the dataset loader to handle missing or uninitialized node features.
+
+---
+
+### 2. Graph Neural Network Architecture
+
+Our model is built around an enhanced **Graph Attention Network (GAT)** encoder with a modular design and improved robustness through contrastive and auxiliary learning. Key components include:
+
+- **Enhanced GAT Encoder:**  
+  - **Layer Normalization & Dropout:** Each GAT layer output is passed through `LayerNorm` and dropout to promote stable training and reduce overfitting.
+  - **Residual Dense Connections:** Skip connections with linear projections of the input are added to the GAT outputs, helping preserve low-level features and enabling better feature fusion across layers.
+  
+- **Projection Head:**  
+  A two-layer MLP that maps the final graph-level embedding into a latent space optimized by a contrastive loss. This latent space is designed to be invariant to graph augmentations, supporting robust self-supervised learning.
+
+- **Auxiliary Reconstruction Head (Optional):**  
+  A reconstruction module is attached to the encoder that predicts the **globally pooled node features** (using `global_mean_pool`). This encourages the encoder to retain richer node-level and structural information during pre-training. The reconstruction loss is computed using MSE.
+
+- **Classifier Head:**  
+  For supervised fine-tuning, a lightweight MLP classifier takes the concatenation of:
+  - The graph-level embedding from the encoder,
+  - Physics-motivated global features (`pt`, `m0`, and an explosion metric).  
+  This setup allows the model to leverage both learned representations and domain-specific features for quark vs. gluon classification.
+
+---
+
+### 3. Contrastive Pre-training & Fine-tuning
+
+The model undergoes a two-stage training process:
+
+- **Stage 1: Contrastive Pre-training**
+  - **Graph Augmentations:** Two stochastic graph views are created per sample using node dropout and edge perturbation.
+  - **Improved NT-Xent Loss:**  
+    We use a contrastive loss based on NT-Xent, augmented with margin-based **hard negative regularization**. This ensures that embeddings of different graphs are well-separated, while those of augmented views of the same graph remain close.
+  - **Auxiliary Reconstruction Loss (Optional):**  
+    When enabled, a reconstruction MSE loss is added between the predicted and actual **pooled node features**. This auxiliary objective promotes richer structural representations in the encoder.
+
+- **Stage 2: Classification Fine-tuning**
+  - The encoder (frozen or trainable) is paired with the classifier head.
+  - A standard **cross-entropy loss** is used to fine-tune the model for binary classification of quark vs. gluon jets.
+
+---
+
+### 4. Complementarity with Image-Based Features
+
+Our graph-based approach complements traditional image-based jet tagging methods. While image models excel at capturing spatial and calorimetric signatures, our graph representation emphasizes **connectivity patterns, relational structures, and substructure dynamics**—crucial for capturing the differences between collimated quark jets and more diffuse gluon jets. Fusion strategies combining both modalities can offer superior performance.
+
+
 
 - **Performance Metrics:**  
-  When trained on only 10,000 images, this method achieved an Accuracy of **66.95%**, an F1 Score of **0.6678**, and a ROC-AUC of **0.7149**. These results demonstrate the potential of integrating graph-based, physics-informed features to enhance quark/gluon classification performance even with limited training data.
+  When trained on only 10,000 images, this method achieved an Accuracy of **66.95%**, an F1 Score of **0.6678**, and a ROC-AUC of **0.7212**. These results demonstrate the potential of integrating graph-based, physics-informed features to enhance quark/gluon classification performance even with limited training data.
+![Editor _ Mermaid Chart-2025-04-07-234004](https://github.com/user-attachments/assets/a64f80ba-81a6-4265-9fa9-4582288a663e)
 
 ---
 
 This advanced method leverages the underlying physics of jet formation and explosion dynamics to enhance anomaly detection and improve the robustness of quark/gluon classification.
-![mermaid-diagram-2025-04-07-222319](https://github.com/user-attachments/assets/b7d155f6-c44b-4b57-b65e-8bad6d9c4e33)
+
 
 --- 
 ---
