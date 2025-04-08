@@ -87,6 +87,10 @@ In this task, jet images are transformed into graph representations using a mult
 - **Visualization:**  
   Sample graphs are visualized to illustrate the evolution from the normal kNN approach to dynamic and multi-scale kNN-based graphs processed by the GNN.
 
+
+-**Performance Note:**  
+The model achieved an accuracy of **69.0124%** after training on **40,000 jet graphs over 6 epochs**. The original architecture was designed with the assumption of full dataset availability; as a result, training on a reduced subset led to suboptimal parameter convergence due to the model's complexity. To mitigate this, **dense connections were introduced within the GNN**, improving gradient flow and feature propagation, which led to the observed performance under limited data conditions.
+
 ![Screenshot 2025-04-01 170707](https://github.com/user-attachments/assets/221ddc24-7f10-4e56-8bb7-f12139751d78)
 
 
@@ -226,8 +230,8 @@ Traditional GNNs operate on locally connected node neighborhoods through message
 ## Results
 
 For example:
-- **Baseline GNN ROC-AUC:**   
-- **Non-local GNN ROC-AUC:** 
+- **Baseline GNN ROC-AUC:** **69.0124**
+- **Non-local GNN ROC-AUC:** ****
 
 These experimental findings support the hypothesis that non-local operations, through their ability to capture long-range interactions, contribute significantly to better performance in complex classification tasks such as jet classification.
 
