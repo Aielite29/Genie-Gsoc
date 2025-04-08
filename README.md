@@ -232,7 +232,7 @@ Traditional GNNs operate on locally connected node neighborhoods through message
 
 For example:
 - **Baseline GNN ROC-AUC:** **69.0124**
-- **Non-local GNN ROC-AUC:** ****
+- **Non-local GNN ROC-AUC:** **71.0424**
 
 These experimental findings support the hypothesis that non-local operations, through their ability to capture long-range interactions, contribute significantly to better performance in complex classification tasks such as jet classification.
 
