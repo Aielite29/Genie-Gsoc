@@ -90,6 +90,8 @@ In this task, jet images are transformed into graph representations using a mult
 
 -**Performance Note:**  
 The model achieved an accuracy of **69.0124%** after training on **40,000 jet graphs over 6 epochs**. The original architecture was designed with the assumption of full dataset availability; as a result, training on a reduced subset led to suboptimal parameter convergence due to the model's complexity. To mitigate this, **dense connections were introduced within the GNN**, improving gradient flow and feature propagation, which led to the observed performance under limited data conditions.
+We can also add SAGEConv to get better results.
+
 
 ![Screenshot 2025-04-01 170707](https://github.com/user-attachments/assets/221ddc24-7f10-4e56-8bb7-f12139751d78)
 
