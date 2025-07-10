@@ -16,7 +16,7 @@ The dataset consists of high-dimensional images representing quark/gluon explosi
 - **HCAL (Hadronic Calorimeter)**
 - **Tracks**
 
-Due to the **large size** of the dataset, loading everything at once caused **Kaggle to go out of memory**. Therefore, I **divided the dataset into 14 chunks**, each containing approximately 140,000 images, and processed them **chunk by chunk** to avoid OOM issues.
+Due to the **large size** of the dataset, loading everything at once caused **Kaggle to go out of memory**. Therefore, I **divided the dataset into 14 chunks**, each containing approximately 10,000 images, and processed them **chunk by chunk** to avoid OOM issues.
 
 ---
 
@@ -121,12 +121,6 @@ The final task was to classify images as **quarks** or **gluons**.
    - Finally, multiple GBT models (including **LightGBM (LGBM), XGBoost (XGB), and CatBoost**) were trained on the extracted features.  
    - An **ensemble** of these GBT models was used to obtain the final classification predictions.
 ![Editor _ Mermaid Chart-2025-04-01-181147](https://github.com/user-attachments/assets/cc4d7e38-7696-4746-b67f-00fe0a6b2399)
-
----
-
----
-
-Below is an updated GitHub README section for "Method 2: Advanced Physics-Informed Graph Contrastive Learning," now reflecting the enhancements introduced in the model architecture, training procedure, and feature engineering. This section explains the key components and training flow.
 
 ---
 
@@ -276,7 +270,7 @@ Overall, the combination of these approaches demonstrates a comprehensive strate
 For any questions or clarifications, feel free to reach out:
 
 - **GitHub:** [Aielite29](https://github.com/Aielite29)
-- **LinkedIn:** [Abhinav Jha](https://www.linkedin.com/in/abhinav-jha-81ab8530b/)
+- **LinkedIn:** [Abhinav Jha](https://www.linkedin.com/in/abhinav-jha-0497a41ba/)
 
 ---
 
