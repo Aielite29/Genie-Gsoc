@@ -27,7 +27,7 @@ The goal of this task was to **reconstruct images** using autoencoder models.
 ### Methodology
 
 - Trained **three separate autoencoders**, one for each channel (**ECAL, HCAL, Tracks**).  
-- Implemented a **self-attention block** to learn interdependencies between channels.  
+- Implemented per-channel self-attention to capture long-range pixel dependencies within each channel, addressing the limitations of CNN-based autoencoders. 
 - Developed **three pairwise attention mechanisms** (ECAL-HCAL, ECAL-Tracks, HCAL-Tracks) and a **global attention** mechanism to focus on all three channels simultaneously.  
 - Reconstructed images using these **attention-based autoencoders**.  
 - Processed the data **chunk by chunk** to manage memory usage on Kaggle.
